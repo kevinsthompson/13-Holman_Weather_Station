@@ -33,7 +33,8 @@ print(f"seaborn: {sns.__version__}")
 sns.set(style="whitegrid")
 # %matplotlib inline  # Uncomment if running in a notebook
 
-print(f"Cell executed in {time.time() - start_time:.2f} seconds.")
+end_time = time.time()
+print(f"Cell executed in {time.time() - start_time:.2f} seconds.\n\n")
 # %%
 # 2. Data Loading
 # Load the weather dataset into a pandas DataFrame.
