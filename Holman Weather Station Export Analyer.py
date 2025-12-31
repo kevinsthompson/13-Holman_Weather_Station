@@ -35,9 +35,9 @@ sns.set(style="whitegrid")
 
 end_time = time.time()
 print(f"Cell executed in {time.time() - start_time:.2f} seconds.\n\n")
+
+
 # %%
-
-
 # 2. Data Loading
 # Load the weather dataset into a pandas DataFrame.
 
@@ -45,28 +45,35 @@ import time
 start = time.time()
 
 file_path = 'Helios Weather Station20251230083828.xlsx'
-excel_file = pd.ExcelFile(file_path)
+
+# Read all sheets at once into a dict of DataFrames
+all_sheets = pd.read_excel(file_path, sheet_name=None)
+
 dfs = []
+for sheet_name, df in all_sheets.items():
+    if not df.empty and 'DateTime' in df.columns:
+        df = df.copy()
+        df['DateTime'] = pd.to_datetime(df['DateTime'])
+        df = df.set_index('DateTime')
+        # Optionally, prefix columns with sheet name to avoid collisions
+        df = df.add_prefix(f"{sheet_name}_")
+        dfs.append(df)
 
-for sheet_name in excel_file.sheet_names:
-    df = pd.read_excel(excel_file, sheet_name=sheet_name)
-    # Ensure the date/time column is parsed; replace 'date' with your actual column name if different
-    print(f"Loading sheet: {sheet_name} with shape {df.shape}")
-    df['DateTime'] = pd.to_datetime(df['DateTime'])
-    dfs.append(df)
-    print(f"Loading sheet: {sheet_name} with shape {df.shape}")
-    
-# Merge all sheets on the 'date' column using outer join to preserve all timestamps
-from functools import reduce
-merged_df = reduce(lambda left, right: pd.merge(left, right, on='DateTime', how='outer'), dfs)
-
-# Set the date column as the index
-merged_df = merged_df.set_index('DateTime').sort_index()
-
+if dfs:
+    # Join all dataframes on DateTime index, columns from each sheet are preserved
+    from functools import reduce
+    combined_df = reduce(lambda left, right: left.join(right, how='outer'), dfs)
+    combined_df = combined_df.sort_index()
+    display(combined_df.head())
+    combined_df.info()
+    display(combined_df.describe())
+    print(f"DataFrame shape: {combined_df.shape}")
+else:
+    print("No valid data found in any worksheet.")
 
 end = time.time()
 print(f"Loaded data in {end - start:.2f} seconds.")
-print(f"DataFrame shape: {df.shape}")
+
 
 
 # %%
