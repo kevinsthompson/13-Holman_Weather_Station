@@ -83,12 +83,13 @@ print(f"Loaded data in {end - start:.2f} seconds.")
 # 3. Initial Data Inspection
 # Preview the data and basic statistics.
 
-display(df.head())
+print("\n\n\n")
+# display(df.head())
 # print("\nColumn names:", df.columns.tolist())
 # print("\nData types:")
 # print(df.dtypes)
 # print("\nInfo:")
-# df.info()
+df.info()
 # print("\nSummary statistics:")
 # display(df.describe())
 
@@ -112,36 +113,60 @@ print(f"DataFrame shape after cleaning: {df.shape}")
 # Create new columns or transform existing ones.
 
 # Example: Convert temperature from Celsius to Fahrenheit if needed
-if 'temperature_C' in df.columns:
-    df['temperature_F'] = df['temperature_C'] * 9/5 + 32
-    print("Added 'temperature_F' column.")
+# if 'temperature_C' in df.columns:
+    # df['temperature_F'] = df['temperature_C'] * 9/5 + 32
+    # print("Added 'temperature_F' column.")
 
 # Example: Parse date column
-if 'date' in df.columns:
-    df['date'] = pd.to_datetime(df['date'])
-    print("Parsed 'date' column to datetime.")
+# if 'date' in df.columns:
+    # df['date'] = pd.to_datetime(df['date'])
+    # print("Parsed 'date' column to datetime.")
 
-display(df.head())
+# display(df.head())
 
 # %%
 # 6. Exploratory Data Analysis (EDA)
 # Visualize distributions, correlations, and trends.
 
-# Example: Histogram of temperature
-if 'temperature_C' in df.columns:
-    df['temperature_C'].hist(bins=30)
-    plt.title('Temperature Distribution (C)')
-    plt.xlabel('Temperature (C)')
-    plt.ylabel('Frequency')
-    plt.show()
-
-# Example: Correlation heatmap
-plt.figure(figsize=(8,6))
-sns.heatmap(df.corr(), annot=True, cmap='coolwarm')
-plt.title('Correlation Matrix')
+# Time series plots for temperature and humidity
+combined_df[['Indoor Temperature Avg', 'Outdoor Temperature Avg']].plot(figsize=(12, 5))
+plt.title('Indoor vs Outdoor Temperature Over Time')
+plt.ylabel('Temperature (C)')
+plt.xlabel('DateTime')
+plt.legend()
 plt.show()
 
-# %%
+combined_df[['Indoor Humidity Avg', 'Outdoor Humidity Avg']].plot(figsize=(12, 5))
+plt.title('Indoor vs Outdoor Humidity Over Time')
+plt.ylabel('Humidity (%)')
+plt.xlabel('DateTime')
+plt.legend()
+plt.show()
+
+# Boxplots for temperature and humidity
+combined_df[['Indoor Temperature Avg', 'Outdoor Temperature Avg']].plot.box()
+plt.title('Boxplot of Indoor and Outdoor Temperature')
+plt.ylabel('Temperature (C)')
+plt.show()
+
+combined_df[['Indoor Humidity Avg', 'Outdoor Humidity Avg']].plot.box()
+plt.title('Boxplot of Indoor and Outdoor Humidity')
+plt.ylabel('Humidity (%)')
+plt.show()
+
+# Correlation heatmap
+import seaborn as sns
+plt.figure(figsize=(10, 8))
+sns.heatmap(combined_df.corr(), annot=True, fmt=".2f", cmap='coolwarm')
+plt.title('Correlation Heatmap')
+plt.show()
+
+
+
+
+
+
+
 # 7. Time Series Analysis
 # Aggregate or resample data by time.
 
