@@ -36,19 +36,38 @@ sns.set(style="whitegrid")
 end_time = time.time()
 print(f"Cell executed in {time.time() - start_time:.2f} seconds.\n\n")
 # %%
+
+
 # 2. Data Loading
 # Load the weather dataset into a pandas DataFrame.
 
 import time
 start = time.time()
 
-# Replace 'weather.csv' with your actual file path
-file_path = 'weather.csv'
-df = pd.read_csv(file_path)
+file_path = 'Helios Weather Station20251230083828.xlsx'
+excel_file = pd.ExcelFile(file_path)
+dfs = []
+
+for sheet_name in excel_file.sheet_names:
+    df = pd.read_excel(excel_file, sheet_name=sheet_name)
+    # Ensure the date/time column is parsed; replace 'date' with your actual column name if different
+    print(f"Loading sheet: {sheet_name} with shape {df.shape}")
+    df['DateTime'] = pd.to_datetime(df['DateTime'])
+    dfs.append(df)
+    print(f"Loading sheet: {sheet_name} with shape {df.shape}")
+    
+# Merge all sheets on the 'date' column using outer join to preserve all timestamps
+from functools import reduce
+merged_df = reduce(lambda left, right: pd.merge(left, right, on='DateTime', how='outer'), dfs)
+
+# Set the date column as the index
+merged_df = merged_df.set_index('DateTime').sort_index()
+
 
 end = time.time()
 print(f"Loaded data in {end - start:.2f} seconds.")
 print(f"DataFrame shape: {df.shape}")
+
 
 # %%
 # 3. Initial Data Inspection
