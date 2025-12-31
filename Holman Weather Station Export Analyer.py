@@ -56,7 +56,7 @@ for sheet_name, df in all_sheets.items():
         df['DateTime'] = pd.to_datetime(df['DateTime'])
         df = df.set_index('DateTime')
         # Optionally, prefix columns with sheet name to avoid collisions
-        df = df.add_prefix(f"{sheet_name}_")
+        # df = df.add_prefix(f"{sheet_name}_")
         dfs.append(df)
 
 if dfs:
@@ -64,12 +64,15 @@ if dfs:
     from functools import reduce
     combined_df = reduce(lambda left, right: left.join(right, how='outer'), dfs)
     combined_df = combined_df.sort_index()
-    display(combined_df.head())
+    # display(combined_df.head())
+    # display(combined_df.describe())
     combined_df.info()
-    display(combined_df.describe())
     print(f"DataFrame shape: {combined_df.shape}")
 else:
     print("No valid data found in any worksheet.")
+
+df = combined_df
+df.info()
 
 end = time.time()
 print(f"Loaded data in {end - start:.2f} seconds.")
@@ -81,13 +84,13 @@ print(f"Loaded data in {end - start:.2f} seconds.")
 # Preview the data and basic statistics.
 
 display(df.head())
-print("\nColumn names:", df.columns.tolist())
-print("\nData types:")
-print(df.dtypes)
-print("\nInfo:")
-df.info()
-print("\nSummary statistics:")
-display(df.describe())
+# print("\nColumn names:", df.columns.tolist())
+# print("\nData types:")
+# print(df.dtypes)
+# print("\nInfo:")
+# df.info()
+# print("\nSummary statistics:")
+# display(df.describe())
 
 # %%
 # 4. Data Cleaning
