@@ -195,12 +195,78 @@ ax.grid(True, linestyle='--', alpha=0.3)
 plt.tight_layout()
 
 
+# C. Area bands for Min–Max with distinct colors for Indoor Temperatures and Humidity
+# Single full-figure area plot for Temperatures with averages, labels, title, legend
+
+fig = plt.figure(figsize=(18, 12))
+ax_temp = fig.add_subplot(2, 1, 1)
+ax_hum = fig.add_subplot(2, 1, 2, sharex=ax_temp)
+
+# Temperature (top)
+ax_temp.fill_between(plot_df.index, plot_df['Indoor Temperature Min'], plot_df['Indoor Temperature Max'],
+                     alpha=0.35, color='tab:blue', label='Indoor Min–Max')
+ax_temp.plot(plot_df.index, plot_df['Indoor Temperature Avg'],
+             color='blue', linewidth=2, label='Indoor Avg')
+ax_temp.set_ylabel('Temperature (°C)')
+ax_temp.grid(True, linestyle='--', alpha=0.3)
+
+# Humidity (bottom)
+ax_hum.fill_between(humidity_df.index, humidity_df['Indoor Humidity Min'], humidity_df['Indoor Humidity Max'],
+                    alpha=0.35, color='tab:orange', label='Indoor Humidity Min–Max')
+ax_hum.plot(humidity_df.index, humidity_df['Indoor Humidity Avg'],
+            color='orange', linewidth=2, label='Indoor Humidity Avg')
+ax_hum.set_xlabel('Date')
+ax_hum.set_ylabel('Relative Humidity (%)')
+ax_hum.grid(True, linestyle='--', alpha=0.3)
+
+# Title and x-ticks (match original formatting on bottom axis)
+fig.suptitle('Plot C. Indoor Temperature and Humidity: Min–Max Areas and Daily Averages')
+ax_temp.tick_params(labelbottom=False)
+ax_hum.set_xticks(plot_df.index)
+ax_hum.set_xticklabels(plot_df.index.strftime('%Y-%m-%d'), rotation=45, ha='right')
+
+# Combined legend (same labels/colors)
+h1, l1 = ax_temp.get_legend_handles_labels()
+h2, l2 = ax_hum.get_legend_handles_labels()
+fig.legend(h1 + h2 , l1 + l2, loc='upper right', ncol=1)
+plt.tight_layout(rect=[0, 0, 1, 0.96])
 
 
+# D. Area bands for Min–Max with distinct colors for Outdoor Temperature and Humidity
+fig = plt.figure(figsize=(18, 12))
+ax_temp = fig.add_subplot(2, 1, 1)
+ax_hum = fig.add_subplot(2, 1, 2, sharex=ax_temp)
 
+# Outdoor Temperature (top)
+ax_temp.fill_between(plot_df.index, plot_df['Outdoor Temperature Min'], plot_df['Outdoor Temperature Max'],
+                     alpha=0.35, color='tab:blue', label='Outdoor Min–Max')
+ax_temp.plot(plot_df.index, plot_df['Outdoor Temperature Avg'],
+             color='blue', linewidth=2, label='Outdoor Avg')
+ax_temp.set_ylabel('Temperature (°C)')
+ax_temp.grid(True, linestyle='--', alpha=0.3)
 
+# Outdoor Humidity (bottom)
+ax_hum.fill_between(humidity_df.index, humidity_df['Outdoor Humidity Min'], humidity_df['Outdoor Humidity Max'],
+                    alpha=0.35, color='tab:orange', label='Outdoor Humidity Min–Max')
+ax_hum.plot(humidity_df.index, humidity_df['Outdoor Humidity Avg'],
+            color='orange', linewidth=2, label='Outdoor Humidity Avg')
+ax_hum.set_xlabel('Date')
+ax_hum.set_ylabel('Relative Humidity (%)')
+ax_hum.grid(True, linestyle='--', alpha=0.3)
 
+# Title and x-ticks (match formatting on bottom axis)
+fig.suptitle('Plot D. Outdoor Temperature and Humidity: Min–Max Areas and Daily Averages')
+ax_temp.tick_params(labelbottom=False)
+ax_hum.set_xticks(plot_df.index)
+ax_hum.set_xticklabels(plot_df.index.strftime('%Y-%m-%d'), rotation=45, ha='right')
 
+# Combined legend
+h1, l1 = ax_temp.get_legend_handles_labels()
+h2, l2 = ax_hum.get_legend_handles_labels()
+fig.legend(h1 + h2 , l1 + l2, loc='upper right', ncol=1)
+plt.tight_layout(rect=[0, 0, 1, 0.96])
+
+# %%
 
 
 
