@@ -24,6 +24,7 @@ import seaborn as sns
 import sys
 import glob
 import os
+import matplotlib.dates as mdates
 
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
@@ -38,7 +39,6 @@ print(f"seaborn: {sns.__version__}")
 sns.set(style="whitegrid")
 %matplotlib inline  
 
-end_time = time.time()
 print(f"\n\n-=- -=- -=-\nCell executed in {time.time() - start_time:.3f} seconds.\n-=- -=- -=-\n\n")
 
 
@@ -137,32 +137,78 @@ print(f"DataFrame shape after cleaning: {df.shape}")
 
 # display(df.head())
 
+
 # %%
 # 6. Exploratory Data Analysis (EDA)
 # Visualize distributions, correlations, and trends.
 
 
+# A. Area bands for Min–Max with distinct colors for Indoor and Outdoor Temperatures
+# Single full-figure area plot for Temperatures with averages, labels, title, legend
+fig, ax = plt.subplots(figsize=(18, 12))
+ax.fill_between(plot_df.index, plot_df['Indoor Temperature Min'], plot_df['Indoor Temperature Max'],
+                alpha=0.35, color='tab:blue', label='Indoor Min–Max')
+ax.fill_between(plot_df.index, plot_df['Outdoor Temperature Min'], plot_df['Outdoor Temperature Max'],
+                alpha=0.35, color='tab:orange', label='Outdoor Min–Max')
 
+# Average lines
+ax.plot(plot_df.index, plot_df['Indoor Temperature Avg'], color='blue', linewidth=2, label='Indoor Avg')
+ax.plot(plot_df.index, plot_df['Outdoor Temperature Avg'], color='orange', linewidth=2, label='Outdoor Avg')
 
-# %%
+# Labels, title, legend
+ax.set_xlabel('Date')
+ax.set_ylabel('Temperature (°C)')
+ax.set_title('Plot A. Indoor vs Outdoor Temperature: Min–Max Areas and Daily Averages')
+ax.legend()
 
-print("DataFrame indexes:", df.index)
+# X-axis labels for each data point
+ax.set_xticks(plot_df.index)
+ax.set_xticklabels(plot_df.index.strftime('%Y-%m-%d'), rotation=45, ha='right')
+ax.grid(True, linestyle='--', alpha=0.3)
 
-# %%
-
-# 1. Time Series Line Plot: Indoor vs. Outdoor Temperature
-plt.figure(figsize=(10, 5))
-plt.plot(df.index, df['Indoor Temperature Avg'], label='Indoor Temp Avg')
-plt.plot(df.index, df['Outdoor Temperature Avg'], label='Outdoor Temp Avg')
-plt.xlabel('Date')
-plt.ylabel('Temperature (°C)')
-plt.title('Indoor vs. Outdoor Average Temperature Over Time')
-plt.legend()
 plt.tight_layout()
-plt.show()
+
+
+# B. Area bands for Min–Max with distinct colors for Indoor and Outdoor Humidity
+# Single full-figure area plot for Humidity with averages, labels, title, legend
+fig, ax = plt.subplots(figsize=(18, 12))
+ax.fill_between(humidity_df.index, humidity_df['Indoor Humidity Min'], humidity_df['Indoor Humidity Max'],
+                alpha=0.35, color='tab:blue', label='Indoor Humidity Min–Max')
+ax.fill_between(humidity_df.index, humidity_df['Outdoor Humidity Min'], humidity_df['Outdoor Humidity Max'],
+                alpha=0.35, color='tab:orange', label='Outdoor Humidity Min–Max')
+
+# Average lines
+ax.plot(humidity_df.index, humidity_df['Indoor Humidity Avg'], color='blue', linewidth=2, label='Indoor Humidity Avg')
+ax.plot(humidity_df.index, humidity_df['Outdoor Humidity Avg'], color='orange', linewidth=2, label='Outdoor Humidity Avg')
+
+# Labels, title, legend
+ax.set_xlabel('Date')
+ax.set_ylabel('Relative Humidity (%)')
+ax.set_title('Plot B. Daily Indoor vs Outdoor Humidity: Min–Max Areas and Averages')
+ax.legend()
+
+# X-axis labels for each data point
+ax.set_xticks(humidity_df.index)
+ax.set_xticklabels(humidity_df.index.strftime('%Y-%m-%d'), rotation=45, ha='right')
+
+ax.grid(True, linestyle='--', alpha=0.3)
+plt.tight_layout()
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # %%
-# 2. Time Series Line Plot: Humidity Trends
+# B . Time Series Line Plot: Humidity Trends
 plt.figure(figsize=(10, 5))
 plt.plot(df.index, df['Indoor Humidity Avg'], label='Indoor Humidity Avg')
 plt.plot(df.index, df['Outdoor Humidity Avg'], label='Outdoor Humidity Avg')
@@ -173,6 +219,7 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
+# %%
 # 3. Bar Plot: Rainfall Total per Period
 plt.figure(figsize=(12, 5))
 plt.bar(df.index, df['Rainfall Total'])
