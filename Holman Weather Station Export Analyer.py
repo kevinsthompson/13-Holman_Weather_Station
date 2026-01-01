@@ -269,21 +269,35 @@ plt.tight_layout(rect=[0, 0, 1, 0.96])
 # %%
 
 
+# E. Area bands for Min–Max with distinct colors for Outdoor Temperature and Humidity
+# Daily rainfall (sum if multiple entries per day, else use single value)
+df = df.sort_index()
+daily_rain = df['Rainfall Total'].groupby(pd.Grouper(freq='D')).apply(
+    lambda s: s.sum() if len(s) > 1 else s.iloc[0]
+).dropna()
 
+# Plot
+fig, ax = plt.subplots(figsize=(18, 8))
+ax.bar(daily_rain.index, daily_rain.values, color='tab:blue', alpha=0.7, width=0.8)
 
+ax.set_xlabel('Date')
+ax.set_ylabel('Rainfall (mm)')
+ax.set_title('Daily Rainfall Totals')
+ax.grid(True, which='major', linestyle='--', alpha=0.3)
 
+# Ticks: minor = every day (no labels), major = Mondays (with date labels)
+ax.xaxis.set_minor_locator(mdates.DayLocator(interval=1))
+ax.xaxis.set_major_locator(mdates.WeekdayLocator(byweekday=mdates.MO))
+ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
 
-# %%
-# B . Time Series Line Plot: Humidity Trends
-plt.figure(figsize=(10, 5))
-plt.plot(df.index, df['Indoor Humidity Avg'], label='Indoor Humidity Avg')
-plt.plot(df.index, df['Outdoor Humidity Avg'], label='Outdoor Humidity Avg')
-plt.xlabel('Date')
-plt.ylabel('Humidity (%)')
-plt.title('Indoor vs. Outdoor Average Humidity Over Time')
-plt.legend()
+ax.tick_params(axis='x', which='major', rotation=45)
+ax.tick_params(axis='x', which='minor', length=3, labelbottom=False)
+
 plt.tight_layout()
-plt.show()
+
+
+
+
 
 # %%
 # 3. Bar Plot: Rainfall Total per Period
