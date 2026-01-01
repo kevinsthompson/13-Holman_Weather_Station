@@ -269,8 +269,7 @@ plt.tight_layout(rect=[0, 0, 1, 0.96])
 # %%
 
 
-# E. Area bands for Min–Max with distinct colors for Outdoor Temperature and Humidity
-# Daily rainfall (sum if multiple entries per day, else use single value)
+# E. Daily rainfall (sum if multiple entries per day, else use single value)
 df = df.sort_index()
 daily_rain = df['Rainfall Total'].groupby(pd.Grouper(freq='D')).apply(
     lambda s: s.sum() if len(s) > 1 else s.iloc[0]
