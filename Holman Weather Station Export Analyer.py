@@ -61,7 +61,11 @@ for file_path in file_list:
     for sheet_name, df in all_sheets.items():
         if not df.empty and 'DateTime' in df.columns:
             df = df.copy()
-            df['DateTime'] = pd.to_datetime(df['DateTime'])
+            # Custom parsing to handle both 'YYYY/MM/DD HH:MM:SS' and 'YYYYMMDD'
+            df['DateTime'] = df['DateTime'].astype(str).str.strip()
+            df['DateTime'] = df['DateTime'].apply(
+                lambda x: pd.to_datetime(x, errors='coerce') if '/' in x or '-' in x else pd.to_datetime(x, format='%Y%m%d', errors='coerce')
+            )
             df = df.set_index('DateTime')
             dfs.append(df)
     if dfs:
@@ -77,13 +81,12 @@ if all_dfs:
     # Concatenate all combined DataFrames from all files
     final_df = pd.concat(all_dfs, axis=0)
     final_df = final_df.sort_index()
-    final_df.info()
     print(f"DataFrame shape: {final_df.shape}")
 else:
     print("No valid data found in any worksheet of any file.")
 
 df = final_df if all_dfs else pd.DataFrame()
-# df.info()
+print("DataFrame indexes:", df.index)
 
 end = time.time()
 print(f"\n\n-=- -=- -=-\nCell executed in {time.time() - start_time:.3f} seconds.\n-=- -=- -=-\n\n")
@@ -138,71 +141,150 @@ print(f"DataFrame shape after cleaning: {df.shape}")
 # 6. Exploratory Data Analysis (EDA)
 # Visualize distributions, correlations, and trends.
 
-# Time series plots for temperature and humidity
-# combined_df[['Indoor Temperature Avg', 'Outdoor Temperature Avg']].plot(figsize=(12, 5))
-# plt.title('Indoor vs Outdoor Temperature Over Time')
-# plt.ylabel('Temperature (C)')
-# plt.xlabel('DateTime')
-# plt.legend()
-# plt.show()
 
-# combined_df[['Indoor Humidity Avg', 'Outdoor Humidity Avg']].plot(figsize=(12, 5))
-# plt.title('Indoor vs Outdoor Humidity Over Time')
-# plt.ylabel('Humidity (%)')
-# plt.xlabel('DateTime')
-# plt.legend()
-# plt.show()
 
-# Time series plots for temperature and humidity
-combined_df[['Indoor Temperature Avg', 'Outdoor Temperature Avg']].plot(figsize=(12, 5))
-plt.title('Indoor vs Outdoor Temperature Over Time')
-plt.ylabel('Temperature (C)')
-plt.xlabel('DateTime')
+
+# %%
+
+print("DataFrame indexes:", df.index)
+
+# %%
+
+# 1. Time Series Line Plot: Indoor vs. Outdoor Temperature
+plt.figure(figsize=(10, 5))
+plt.plot(df.index, df['Indoor Temperature Avg'], label='Indoor Temp Avg')
+plt.plot(df.index, df['Outdoor Temperature Avg'], label='Outdoor Temp Avg')
+plt.xlabel('Date')
+plt.ylabel('Temperature (°C)')
+plt.title('Indoor vs. Outdoor Average Temperature Over Time')
 plt.legend()
-plt.xticks(rotation=45)
 plt.tight_layout()
 plt.show()
 
-combined_df[['Indoor Humidity Avg', 'Outdoor Humidity Avg']].plot(figsize=(12, 5))
-plt.title('Indoor vs Outdoor Humidity Over Time')
+# %%
+# 2. Time Series Line Plot: Humidity Trends
+plt.figure(figsize=(10, 5))
+plt.plot(df.index, df['Indoor Humidity Avg'], label='Indoor Humidity Avg')
+plt.plot(df.index, df['Outdoor Humidity Avg'], label='Outdoor Humidity Avg')
+plt.xlabel('Date')
 plt.ylabel('Humidity (%)')
-plt.xlabel('DateTime')
+plt.title('Indoor vs. Outdoor Average Humidity Over Time')
 plt.legend()
-plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# 3. Bar Plot: Rainfall Total per Period
+plt.figure(figsize=(12, 5))
+plt.bar(df.index, df['Rainfall Total'])
+plt.xlabel('Date')
+plt.ylabel('Rainfall (mm)')
+plt.title('Rainfall Total per Period')
+plt.tight_layout()
+plt.show()
+
+# 4. Box Plot: Temperature Distribution
+plt.figure(figsize=(8, 6))
+sns.boxplot(data=df[['Indoor Temperature Avg', 'Outdoor Temperature Avg']])
+plt.ylabel('Temperature (°C)')
+plt.title('Distribution of Indoor and Outdoor Average Temperatures')
+plt.tight_layout()
+plt.show()
+
+# 5. Scatter Plot: Outdoor Temperature vs. Outdoor Humidity
+plt.figure(figsize=(8, 6))
+plt.scatter(df['Outdoor Temperature Avg'], df['Outdoor Humidity Avg'])
+plt.xlabel('Outdoor Temperature Avg (°C)')
+plt.ylabel('Outdoor Humidity Avg (%)')
+plt.title('Outdoor Temperature vs. Outdoor Humidity')
+plt.tight_layout()
+plt.show()
+
+# 6. Line Plot: Barometric Pressure Over Time
+plt.figure(figsize=(10, 5))
+plt.plot(df.index, df['Barometric Pressure Avg'])
+plt.xlabel('Date')
+plt.ylabel('Barometric Pressure (hPa)')
+plt.title('Barometric Pressure Over Time')
+plt.tight_layout()
+plt.show()
+
+# 7. Line Plot: Wind Speed and Gusts
+plt.figure(figsize=(10, 5))
+plt.plot(df.index, df['Wind Speed Avg'], label='Wind Speed Avg')
+plt.plot(df.index, df['Wind Gust Avg'], label='Wind Gust Avg')
+plt.xlabel('Date')
+plt.ylabel('Wind Speed (km/h)')
+plt.title('Wind Speed and Gusts Over Time')
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# 8. Heatmap: Correlation Matrix
+plt.figure(figsize=(14, 10))
+corr = df.corr()
+sns.heatmap(corr, annot=True, fmt=".2f", cmap='coolwarm', annot_kws={"size": 10}, linewidths=0.5)
+plt.title('Correlation Heatmap of Weather Variables')
+plt.tight_layout()
+plt.show()
+
+# 9. Grouped Bar Plot: Max vs. Min Temperatures
+temp_df = df[['Indoor Temperature Max', 'Indoor Temperature Min', 'Outdoor Temperature Max', 'Outdoor Temperature Min']]
+temp_df_plot = temp_df.reset_index(drop=True)
+temp_df_plot.plot(kind='bar', figsize=(14, 6))
+plt.xlabel('Period')
+plt.ylabel('Temperature (°C)')
+plt.title('Max vs. Min Temperatures (Indoor & Outdoor)')
+plt.legend(loc='upper right')
+plt.tight_layout()
+plt.show()
+
+# 10. Box Plot: Wind Speed and Gusts
+plt.figure(figsize=(8, 6))
+sns.boxplot(data=df[['Wind Speed Avg', 'Wind Gust Avg']])
+plt.ylabel('Wind Speed (km/h)')
+plt.title('Distribution of Wind Speed and Gusts')
 plt.tight_layout()
 plt.show()
 
 
 
-# Boxplots for temperature and humidity
-combined_df[['Indoor Temperature Avg', 'Outdoor Temperature Avg']].plot.box()
-plt.title('Boxplot of Indoor and Outdoor Temperature')
-plt.ylabel('Temperature (C)')
-plt.show()
-
-combined_df[['Indoor Humidity Avg', 'Outdoor Humidity Avg']].plot.box()
-plt.title('Boxplot of Indoor and Outdoor Humidity')
-plt.ylabel('Humidity (%)')
-plt.show()
 
 
-# Correlation heatmap2
-import seaborn as sns
-plt.figure(figsize=(18, 14))
-sns.heatmap(
-    combined_df.corr(),
-    annot=True,
-    fmt=".2f",
-    cmap='coolwarm',
-    annot_kws={"size": 12},
-    linewidths=0.5,
-    cbar_kws={"shrink": 0.8, "aspect": 30}
-)
-plt.title('Correlation Heatmap', fontsize=18)
-plt.xticks(fontsize=12, rotation=45, ha='right')
-plt.yticks(fontsize=12)
-plt.tight_layout()
-plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# # Correlation heatmap
+# import seaborn as sns
+# plt.figure(figsize=(18, 14))
+# sns.heatmap(
+#     combined_df.corr(),
+#     annot=True,
+#     fmt=".2f",
+#     cmap='coolwarm',
+#     annot_kws={"size": 12},
+#     linewidths=0.5,
+#     cbar_kws={"shrink": 0.8, "aspect": 30}
+# )
+# plt.title('Correlation Heatmap', fontsize=18)
+# plt.xticks(fontsize=12, rotation=45, ha='right')
+# plt.yticks(fontsize=12)
+# plt.tight_layout()
+# plt.show()
 
 
 
