@@ -141,6 +141,7 @@ print(f"DataFrame shape after cleaning: {df.shape}")
 # %%
 # 6. Exploratory Data Analysis (EDA)
 # Visualize distributions, correlations, and trends.
+plot_df = df
 
 
 # A. Area bands for Min–Max with distinct colors for Indoor and Outdoor Temperatures
