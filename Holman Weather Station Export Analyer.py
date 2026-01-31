@@ -168,7 +168,7 @@ ax.set_xticklabels(plot_df.index.strftime('%Y-%m-%d'), rotation=45, ha='right')
 ax.grid(True, linestyle='--', alpha=0.3)
 
 plt.tight_layout()
-
+humidity_df = df
 
 # B. Area bands for Min–Max with distinct colors for Indoor and Outdoor Humidity
 # Single full-figure area plot for Humidity with averages, labels, title, legend
